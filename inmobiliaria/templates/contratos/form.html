@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Editar' if contrato else 'Nuevo' }} Contrato{% endblock %}
+{% block page_title %}
+  <i class="bi bi-file-earmark-text me-2"></i>{{ 'Editar' if contrato else 'Nuevo' }} Contrato
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-3">
+  <div class="col-lg-8">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white border-bottom">
+        <span class="fw-semibold">
+          {{ 'Editar contrato #' + contrato.id|string if contrato else 'Registrar nuevo contrato' }}
+        </span>
+      </div>
+      <div class="card-body p-4">
+        <form method="POST">
+          <div class="row g-3">
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Propiedad <span class="text-danger">*</span></label>
+              <select name="propiedad_id" class="form-select" required>
+                <option value="">— Seleccionar propiedad —</option>
+                {% for p in propiedades %}
+                <option value="{{ p.id }}"
+                  {{ 'selected' if contrato and contrato.propiedad_id == p.id }}>
+                  {{ p.direccion }}{% if p.cta_cte_central %} ({{ p.cta_cte_central }}){% endif %}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Inquilino <span class="text-danger">*</span></label>
+              <select name="inquilino_id" class="form-select" required>
+                <option value="">— Seleccionar inquilino —</option>
+                {% for i in inquilinos %}
+                <option value="{{ i.id }}"
+                  {{ 'selected' if contrato and contrato.inquilino_id == i.id }}>
+                  {{ i.apellido }}, {{ i.nombre }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Fecha de inicio <span class="text-danger">*</span></label>
+              <input type="date" name="fecha_inicio" class="form-control" required
+                     value="{{ contrato.fecha_inicio if contrato else '' }}">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Fecha de fin <span class="text-danger">*</span></label>
+              <input type="date" name="fecha_fin" class="form-control" required
+                     value="{{ contrato.fecha_fin if contrato else '' }}">
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Canon mensual (Gs.) <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text">Gs.</span>
+                <input type="number" name="canon_mensual" class="form-control" required
+                       min="0" step="1" placeholder="ej. 1300000"
+                       value="{{ contrato.canon_mensual|int if contrato else '' }}">
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Días de período de pago</label>
+              <input type="number" name="dias_periodo_pago" class="form-control"
+                     min="1" max="31" value="{{ contrato.dias_periodo_pago if contrato else 6 }}">
+              <div class="form-text">RN02: días desde el 1° del mes para pagar sin mora.</div>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Recargo por mora (Gs./día)</label>
+              <div class="input-group">
+                <span class="input-group-text">Gs.</span>
+                <input type="number" name="recargo_mora_diario" class="form-control"
+                       min="0" step="1" placeholder="ej. 5000"
+                       value="{{ contrato.recargo_mora_diario|int if contrato else 5000 }}">
+              </div>
+              <div class="form-text">RN04: monto fijo por cada día de atraso.</div>
+            </div>
+
+            {% if contrato %}
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Estado</label>
+              <div class="form-check form-switch mt-2">
+                <input class="form-check-input" type="checkbox" name="activo" id="activo"
+                       {{ 'checked' if contrato.activo }}>
+                <label class="form-check-label" for="activo">Contrato activo</label>
+              </div>
+            </div>
+            {% endif %}
+
+            <div class="col-12">
+              <label class="form-label fw-semibold">Observaciones</label>
+              <textarea name="observaciones" class="form-control" rows="2"
+                        placeholder="Notas adicionales del contrato...">{{ contrato.observaciones if contrato else '' }}</textarea>
+            </div>
+
+          </div>
+
+          {% if not contrato %}
+          <div class="alert alert-info mt-3 mb-0">
+            <i class="bi bi-info-circle me-2"></i>
+            Al guardar, el sistema generará automáticamente las cuotas mensuales por todo el período del contrato.
+          </div>
+          {% endif %}
+
+          <hr class="my-4">
+          <div class="d-flex gap-2 justify-content-end">
+            <a href="{{ url_for('contratos') }}" class="btn btn-outline-secondary">
+              <i class="bi bi-x-lg me-1"></i>Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-check-lg me-1"></i>{{ 'Guardar cambios' if contrato else 'Crear contrato y generar cuotas' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

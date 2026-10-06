@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Editar' if propiedad else 'Nueva' }} Propiedad{% endblock %}
+{% block page_title %}
+  <i class="bi bi-house-door me-2"></i>{{ 'Editar' if propiedad else 'Nueva' }} Propiedad
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-3">
+  <div class="col-lg-7">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white border-bottom">
+        <span class="fw-semibold">
+          {{ 'Editar propiedad #' + propiedad.id|string if propiedad else 'Registrar nueva propiedad' }}
+        </span>
+      </div>
+      <div class="card-body p-4">
+        <form method="POST">
+          <div class="row g-3">
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Cuenta corriente central</label>
+              <input type="text" name="cta_cte_central" class="form-control"
+                     placeholder="ej. 13-776-15"
+                     value="{{ propiedad.cta_cte_central if propiedad else '' }}">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Ciudad</label>
+              <input type="text" name="ciudad" class="form-control"
+                     placeholder="ej. Asunción"
+                     value="{{ propiedad.ciudad if propiedad else '' }}">
+            </div>
+
+            <div class="col-12">
+              <label class="form-label fw-semibold">Dirección <span class="text-danger">*</span></label>
+              <input type="text" name="direccion" class="form-control" required
+                     placeholder="ej. Antonio Ortiz Mayans - Lambaré"
+                     value="{{ propiedad.direccion if propiedad else '' }}">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Tipo de propiedad</label>
+              <select name="tipo_id" class="form-select">
+                <option value="">— Seleccionar —</option>
+                {% for t in tipos %}
+                <option value="{{ t.id }}"
+                  {{ 'selected' if propiedad and propiedad.tipo_id == t.id }}>
+                  {{ t.nombre }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Estado</label>
+              <select name="estado_id" class="form-select">
+                <option value="">— Seleccionar —</option>
+                {% for e in estados %}
+                <option value="{{ e.id }}"
+                  {{ 'selected' if propiedad and propiedad.estado_id == e.id }}>
+                  {{ e.nombre }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label fw-semibold">Descripción / Observaciones</label>
+              <textarea name="descripcion" class="form-control" rows="3"
+                        placeholder="Detalles adicionales de la propiedad...">{{ propiedad.descripcion if propiedad else '' }}</textarea>
+            </div>
+
+          </div><!-- /row -->
+
+          <hr class="my-4">
+          <div class="d-flex gap-2 justify-content-end">
+            <a href="{{ url_for('propiedades') }}" class="btn btn-outline-secondary">
+              <i class="bi bi-x-lg me-1"></i>Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-check-lg me-1"></i>{{ 'Guardar cambios' if propiedad else 'Registrar propiedad' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

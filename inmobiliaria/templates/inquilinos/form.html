@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Editar' if inquilino else 'Nuevo' }} Inquilino{% endblock %}
+{% block page_title %}
+  <i class="bi bi-person me-2"></i>{{ 'Editar' if inquilino else 'Nuevo' }} Inquilino
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-3">
+  <div class="col-lg-7">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white border-bottom">
+        <span class="fw-semibold">
+          {{ 'Editar inquilino #' + inquilino.id|string if inquilino else 'Registrar nuevo inquilino' }}
+        </span>
+      </div>
+      <div class="card-body p-4">
+        <form method="POST">
+          <div class="row g-3">
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Nombre <span class="text-danger">*</span></label>
+              <input type="text" name="nombre" class="form-control" required
+                     placeholder="Nombre(s)"
+                     value="{{ inquilino.nombre if inquilino else '' }}">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Apellido <span class="text-danger">*</span></label>
+              <input type="text" name="apellido" class="form-control" required
+                     placeholder="Apellido(s)"
+                     value="{{ inquilino.apellido if inquilino else '' }}">
+            </div>
+
+            <div class="col-12">
+              <label class="form-label fw-semibold">Co-titular (Y/O)</label>
+              <input type="text" name="cotitular" class="form-control"
+                     placeholder="Nombre del co-titular si aplica"
+                     value="{{ inquilino.cotitular if inquilino else '' }}">
+              <div class="form-text">Aparecerá en los recibos como "TITULAR Y/O CO-TITULAR".</div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">RUC / CI</label>
+              <input type="text" name="ruc_ci" class="form-control"
+                     placeholder="ej. 1234567-8"
+                     value="{{ inquilino.ruc_ci if inquilino else '' }}">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Teléfono</label>
+              <input type="text" name="telefono" class="form-control"
+                     placeholder="ej. 0971-101-200"
+                     value="{{ inquilino.telefono if inquilino else '' }}">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Email</label>
+              <input type="email" name="email" class="form-control"
+                     placeholder="correo@ejemplo.com"
+                     value="{{ inquilino.email if inquilino else '' }}">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Dirección</label>
+              <input type="text" name="direccion" class="form-control"
+                     placeholder="Dirección del inquilino"
+                     value="{{ inquilino.direccion if inquilino else '' }}">
+            </div>
+
+          </div>
+
+          <hr class="my-4">
+          <div class="d-flex gap-2 justify-content-end">
+            <a href="{{ url_for('inquilinos') }}" class="btn btn-outline-secondary">
+              <i class="bi bi-x-lg me-1"></i>Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-check-lg me-1"></i>{{ 'Guardar cambios' if inquilino else 'Registrar inquilino' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

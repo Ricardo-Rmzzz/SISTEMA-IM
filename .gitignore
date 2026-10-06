@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Local configuration
+.env
+.venv/
+venv/
+
+# Local database and SQLite sidecar files
+inmobiliaria/inmobiliaria.db
+inmobiliaria/inmobiliaria.db-*
+
+# Accidental Windows device-name artifact
+inmobiliaria/nul

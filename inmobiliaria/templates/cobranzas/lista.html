@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Cobranzas{% endblock %}
+{% block page_title %}<i class="bi bi-cash-coin me-2"></i>Cobranzas{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm mt-3">
+  <div class="card-header bg-white border-bottom">
+    <form method="GET" class="d-flex gap-2 align-items-center">
+      <input type="text" name="q" class="form-control" placeholder="Buscar por inquilino o propiedad..."
+             value="{{ q }}" style="max-width:320px;">
+      <button type="submit" class="btn btn-outline-primary">
+        <i class="bi bi-search"></i>
+      </button>
+      {% if q %}
+      <a href="{{ url_for('cobranzas') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-x"></i> Limpiar
+      </a>
+      {% endif %}
+    </form>
+  </div>
+  <div class="card-body p-0">
+    {% if contratos %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Inquilino</th>
+            <th>Propiedad</th>
+            <th class="text-end">Saldo pendiente</th>
+            <th class="text-center">Cuotas en mora</th>
+            <th class="text-center">Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in contratos %}
+          <tr>
+            <td>
+              <div class="fw-semibold">{{ c.inquilino }}</div>
+              {% if c.cotitular %}
+              <small class="text-muted">Y/O {{ c.cotitular }}</small>
+              {% endif %}
+            </td>
+            <td>{{ c.propiedad }}</td>
+            <td class="text-end fw-bold
+              {{ 'text-danger' if c.saldo_total > 0 else 'text-success' }}">
+              {{ c.saldo_total | fmt_gs }}
+            </td>
+            <td class="text-center">
+              {% if c.cuotas_mora > 0 %}
+                <span class="badge bg-danger">{{ c.cuotas_mora }} en mora</span>
+              {% else %}
+                <span class="badge bg-success">Al día</span>
+              {% endif %}
+            </td>
+            <td class="text-center">
+              <a href="{{ url_for('registrar_cobro', contrato_id=c.contrato_id) }}"
+                 class="btn btn-sm btn-success">
+                <i class="bi bi-cash-coin me-1"></i>Cobrar
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="text-center text-muted py-5">
+      <i class="bi bi-check-circle fs-1 d-block mb-2 text-success"></i>
+      {% if q %}
+        No se encontraron resultados para "<strong>{{ q }}</strong>".
+      {% else %}
+        No hay contratos activos con saldo pendiente.
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

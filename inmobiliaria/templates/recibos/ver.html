@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+{% block title %}Recibo N° {{ "%04d"|format(recibo.nro_recibo) }}{% endblock %}
+{% block page_title %}<i class="bi bi-receipt me-2"></i>Recibo N° {{ "%04d"|format(recibo.nro_recibo) }}{% endblock %}
+
+{% block content %}
+<div class="no-print d-flex gap-2 mt-3 mb-3">
+  <button onclick="window.print()" class="btn btn-primary">
+    <i class="bi bi-printer me-2"></i>Imprimir recibo
+  </button>
+  <a href="{{ url_for('recibos') }}" class="btn btn-outline-secondary">
+    <i class="bi bi-arrow-left me-1"></i>Volver
+  </a>
+  {% if not recibo.anulado %}
+  <a href="{{ url_for('anular_recibo', rid=recibo.id) }}"
+     class="btn btn-outline-danger ms-auto">
+    <i class="bi bi-x-circle me-1"></i>Anular recibo
+  </a>
+  {% endif %}
+</div>
+
+{% if recibo.anulado %}
+<div class="alert alert-danger no-print">
+  <i class="bi bi-exclamation-triangle me-2"></i>
+  <strong>Este recibo fue anulado.</strong> Motivo: {{ recibo.motivo_anulacion }}
+</div>
+{% endif %}
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- RECIBO PRINCIPAL                                                         -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div class="recibo-print {{ 'opacity-50' if recibo.anulado }}">
+
+  {% if recibo.anulado %}
+  <div class="text-center text-danger fw-bold fs-4 mb-2">⚠ ANULADO ⚠</div>
+  {% endif %}
+
+  <!-- Encabezado -->
+  <div class="recibo-header d-flex justify-content-between align-items-start">
+    <div>
+      <h5 class="fw-bold mb-0">RECIBO DE ALQUILER</h5>
+      <div class="small text-muted">MARGHERITA S.A. · RUC 80093922-0 · Cel. 0971-101-200</div>
+    </div>
+    <div class="text-end">
+      <div class="fw-bold fs-5">Recibo N° {{ "%04d"|format(recibo.nro_recibo) }}</div>
+      <div class="small">Cuota {{ recibo.nro_cuota }}/{{ recibo.total_cuotas }}</div>
+    </div>
+  </div>
+
+  <!-- Datos principales -->
+  <table class="table table-borderless table-sm mb-2" style="font-size:.9rem;">
+    <tr>
+      <td class="text-muted" style="width:120px;">Recibí de:</td>
+      <td class="fw-bold">
+        {{ recibo.inq_nombre }} {{ recibo.inq_apellido }}
+        {% if recibo.cotitular %} Y/O {{ recibo.cotitular }}{% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td class="text-muted">La suma de Gs.:</td>
+      <td>
+        <span class="text-muted small">{{ monto_en_letras }}</span>
+        &nbsp;&nbsp;<strong>Gs. {{ recibo.monto_pagado | int | fmt_gs }}</strong>
+      </td>
+    </tr>
+    <tr>
+      <td class="text-muted">Dirección:</td>
+      <td>{{ recibo.propiedad }}{% if recibo.ciudad %}, {{ recibo.ciudad }}{% endif %}</td>
+    </tr>
+    {% if recibo.cta_cte_central %}
+    <tr>
+      <td class="text-muted">Cta. Cte. Ctral. N°:</td>
+      <td><code>{{ recibo.cta_cte_central }}</code></td>
+    </tr>
+    {% endif %}
+    <tr>
+      <td class="text-muted">Concepto:</td>
+      <td>
+        {% if recibo.tipo_pago == 'Cancelación de saldo' %}
+          CANCELACIÓN DE SALDO del alquiler del mes de {{ recibo.periodo }}
+        {% elif recibo.tipo_pago == 'Pago parcial' %}
+          A CUENTA del alquiler del mes de {{ recibo.periodo }}
+        {% else %}
+          PAGO TOTAL del alquiler del mes de {{ recibo.periodo }}
+        {% endif %}
+      </td>
+    </tr>
+  </table>
+
+  <!-- Tipo de pago -->
+  <div class="mb-3 small">
+    <strong>Tipo de pago:</strong>&nbsp;&nbsp;
+    <span class="me-3">{% if recibo.tipo_pago == 'Pago total' %}☑{% else %}☐{% endif %} Pago total</span>
+    <span class="me-3">{% if recibo.tipo_pago == 'Pago parcial' %}☑{% else %}☐{% endif %} Pago parcial</span>
+    <span>{% if recibo.tipo_pago == 'Cancelación de saldo' %}☑{% else %}☐{% endif %} Cancelación de saldo</span>
+  </div>
+
+  <!-- Tabla de montos -->
+  <table class="table table-bordered table-sm mb-3" style="font-size:.88rem;">
+    <thead class="table-light">
+      <tr>
+        <th class="text-center">Alquiler del mes</th>
+        <th class="text-center">Abonado antes</th>
+        <th class="text-center">Abonado en este recibo</th>
+        <th class="text-center">Saldo pendiente</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="text-center fw-semibold">{{ recibo.monto_alquiler | fmt_gs }}</td>
+        <td class="text-center">{{ pagado_antes | fmt_gs }}</td>
+        <td class="text-center fw-bold">{{ recibo.monto_pagado | fmt_gs }}</td>
+        <td class="text-center {{ 'text-danger fw-bold' if recibo.saldo_actual > 0 else 'text-success fw-bold' }}">
+          {{ recibo.saldo_actual | fmt_gs }}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  {% if recibo.recargo_mora > 0 %}
+  <div class="alert alert-warning py-1 px-3 small mb-3">
+    <i class="bi bi-exclamation-circle me-1"></i>
+    Incluye recargo por mora: <strong>{{ recibo.recargo_mora | fmt_gs }}</strong>
+  </div>
+  {% endif %}
+
+  <div class="mb-3 small">
+    <strong>Forma de pago:</strong>&nbsp;&nbsp;
+    <span class="me-3">{% if recibo.medio_pago == 'Efectivo' %}☑{% else %}☐{% endif %} Efectivo</span>
+    <span class="me-3">
+      {% if recibo.medio_pago == 'Depósito bancario' %}☑{% else %}☐{% endif %} Depósito Banco/N°
+      {% if recibo.nro_deposito %}<code>{{ recibo.nro_deposito }}</code>{% endif %}
+    </span>
+    <span>
+      {% if recibo.medio_pago == 'Transferencia bancaria' %}☑{% else %}☐{% endif %} Transf. Banco/N°
+      {% if recibo.nro_transferencia %}<code>{{ recibo.nro_transferencia }}</code>{% endif %}
+    </span>
+  </div>
+
+  <div class="d-flex justify-content-between align-items-end mt-4">
+    <div class="small text-muted">Asunción, {{ recibo.fecha_pago }}</div>
+    <div class="text-center" style="min-width:180px;">
+      <div style="border-top:1px solid #333; margin-top:40px; padding-top:4px;">
+        <small>Firma</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── TALÓN ──────────────────────────────────────────────────────────── -->
+  <div class="talon">
+    <div class="d-flex justify-content-between align-items-start mb-2">
+      <div>
+        <strong>TALÓN</strong>
+        <span class="ms-3 text-muted small">Copia inmobiliaria</span>
+      </div>
+      <div class="text-end small">
+        Recibo N° <strong>{{ "%04d"|format(recibo.nro_recibo) }}</strong> · Cuota {{ recibo.nro_cuota }}/{{ recibo.total_cuotas }}
+      </div>
+    </div>
+
+    <table class="table table-borderless table-sm mb-2" style="font-size:.85rem;">
+      <tr>
+        <td class="text-muted">Recibí de:</td>
+        <td>{{ recibo.inq_nombre }} {{ recibo.inq_apellido }}{% if recibo.cotitular %} Y/O {{ recibo.cotitular }}{% endif %}</td>
+        <td class="text-end fw-bold">{{ recibo.monto_pagado | fmt_gs }}</td>
+      </tr>
+      <tr>
+        <td class="text-muted">Concepto:</td>
+        <td colspan="2">
+          {% if recibo.tipo_pago == 'Cancelación de saldo' %}
+            CANCELACIÓN DE SALDO – {{ recibo.periodo }}
+          {% elif recibo.tipo_pago == 'Pago parcial' %}
+            A CUENTA – {{ recibo.periodo }}
+          {% else %}
+            PAGO TOTAL – {{ recibo.periodo }}
+          {% endif %}
+        </td>
+      </tr>
+      <tr>
+        <td class="text-muted">Saldo:</td>
+        <td colspan="2" class="{{ 'text-danger fw-bold' if recibo.saldo_actual > 0 else 'text-success' }}">
+          {{ recibo.saldo_actual | fmt_gs }}
+        </td>
+      </tr>
+    </table>
+
+    <div class="row small">
+      <div class="col-4">
+        Tipo de pago: <strong>{{ recibo.tipo_pago }}</strong>
+      </div>
+      <div class="col-4">
+        Fecha: {{ recibo.fecha_pago }}
+      </div>
+      <div class="col-4">
+        {% if recibo.nro_factura %}
+        Factura legal N°: <strong>{{ recibo.nro_factura }}</strong>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="row mt-2 small">
+      <div class="col-4">
+        Verificado: _______________
+      </div>
+      <div class="col-4">
+        DEP N°: _______________
+      </div>
+      <div class="col-4">
+        <div style="border-top:1px solid #333;margin-top:30px;padding-top:3px;">
+          Media firma Gerente General
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- /talón -->
+
+</div><!-- /recibo-print -->
+
+<div class="no-print text-muted text-center mt-3 small">
+  Registrado por: {{ recibo.registrado_por }} · {{ recibo.creado_en }}
+</div>
+{% endblock %}

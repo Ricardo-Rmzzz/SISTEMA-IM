@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Reporte de Recaudación{% endblock %}
+{% block page_title %}<i class="bi bi-cash-stack me-2"></i>Reporte de Recaudación{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm mt-3 no-print">
+  <div class="card-body">
+    <form method="GET" class="row g-3 align-items-end">
+      <div class="col-md-3">
+        <label class="form-label fw-semibold">Desde</label>
+        <input type="date" name="fecha_desde" class="form-control" value="{{ fecha_desde }}">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label fw-semibold">Hasta</label>
+        <input type="date" name="fecha_hasta" class="form-control" value="{{ fecha_hasta }}">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label fw-semibold">Medio de pago</label>
+        <select name="medio_id" class="form-select">
+          <option value="">— Todos —</option>
+          {% for m in medios %}
+          <option value="{{ m.id }}" {{ 'selected' if medio_id == m.id|string }}>{{ m.nombre }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3">
+        <button type="submit" class="btn btn-primary w-100">
+          <i class="bi bi-funnel me-1"></i>Filtrar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card border-0 shadow-sm mt-3">
+  <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+    <span class="fw-semibold">
+      Período: {{ fecha_desde }} al {{ fecha_hasta }}
+      {% if medio_id %} · Filtrado por medio de pago{% endif %}
+    </span>
+    <button onclick="window.print()" class="btn btn-sm btn-outline-secondary no-print">
+      <i class="bi bi-printer me-1"></i>Imprimir
+    </button>
+  </div>
+  <div class="card-body p-0">
+    {% if rows %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0 small">
+        <thead class="table-light">
+          <tr>
+            <th>Recibo N°</th>
+            <th>Fecha</th>
+            <th>Inquilino</th>
+            <th>Propiedad</th>
+            <th>Cuota</th>
+            <th>Tipo de pago</th>
+            <th>Medio de pago</th>
+            <th class="text-end">Monto</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in rows %}
+          <tr>
+            <td><span class="badge bg-primary">{{ "%04d"|format(r.nro_recibo) }}</span></td>
+            <td>{{ r.fecha_pago }}</td>
+            <td>{{ r.inquilino }}</td>
+            <td>{{ r.propiedad }}</td>
+            <td>{{ r.cuota }}</td>
+            <td>
+              {% if r.tipo_pago == 'Pago total' %}
+                <span class="badge bg-success">Total</span>
+              {% elif r.tipo_pago == 'Pago parcial' %}
+                <span class="badge bg-warning text-dark">Parcial</span>
+              {% else %}
+                <span class="badge bg-info text-dark">Cancelación</span>
+              {% endif %}
+            </td>
+            <td>{{ r.medio_pago }}</td>
+            <td class="text-end fw-semibold">{{ r.monto_pagado | fmt_gs }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot class="table-light">
+          <tr>
+            <td colspan="7" class="text-end fw-bold">TOTAL RECAUDADO:</td>
+            <td class="text-end fw-bold fs-6 text-success">{{ total | fmt_gs }}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    {% else %}
+    <div class="text-center text-muted py-5">
+      <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+      No hay cobros registrados en el período seleccionado.
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 160" width="280" height="160">
+  <defs>
+    <clipPath id="oval-clip">
+      <ellipse cx="140" cy="80" rx="136" ry="75"/>
+    </clipPath>
+    <radialGradient id="moonGrad" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#f0f0f0"/>
+      <stop offset="60%" stop-color="#c8c8c8"/>
+      <stop offset="100%" stop-color="#888"/>
+    </radialGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <!-- Fondo blanco del óvalo -->
+  <ellipse cx="140" cy="80" rx="136" ry="75" fill="#fff" filter="url(#shadow)"/>
+
+  <!-- Bandera italiana: tres franjas verticales dentro del óvalo -->
+  <!-- Verde -->
+  <rect x="4" y="5" width="91" height="150" fill="#009246" clip-path="url(#oval-clip)"/>
+  <!-- Blanco -->
+  <rect x="95" y="5" width="90" height="150" fill="#f4f4f4" clip-path="url(#oval-clip)"/>
+  <!-- Rojo -->
+  <rect x="185" y="5" width="91" height="150" fill="#ce2b37" clip-path="url(#oval-clip)"/>
+
+  <!-- Efecto de tela / pliegues suaves -->
+  <ellipse cx="140" cy="80" rx="136" ry="75" fill="none"
+           stroke="rgba(0,0,0,0.08)" stroke-width="1" clip-path="url(#oval-clip)"/>
+
+  <!-- Luna (círculo gris) -->
+  <circle cx="140" cy="74" r="42" fill="url(#moonGrad)" clip-path="url(#oval-clip)"/>
+  <!-- Cráteres de la luna -->
+  <circle cx="128" cy="62" r="5" fill="rgba(100,100,100,0.25)"/>
+  <circle cx="152" cy="78" r="4" fill="rgba(100,100,100,0.2)"/>
+  <circle cx="135" cy="88" r="3" fill="rgba(100,100,100,0.2)"/>
+  <circle cx="155" cy="60" r="3" fill="rgba(100,100,100,0.15)"/>
+
+  <!-- Figura humana (persona con los brazos extendidos hacia arriba) -->
+  <!-- Cabeza -->
+  <circle cx="140" cy="52" r="6" fill="#111"/>
+  <!-- Cuerpo -->
+  <line x1="140" y1="58" x2="140" y2="80" stroke="#111" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- Brazo izquierdo (levantado) -->
+  <line x1="140" y1="64" x2="122" y2="56" stroke="#111" stroke-width="3" stroke-linecap="round"/>
+  <!-- Brazo derecho (levantado) -->
+  <line x1="140" y1="64" x2="158" y2="56" stroke="#111" stroke-width="3" stroke-linecap="round"/>
+  <!-- Pierna izquierda -->
+  <line x1="140" y1="80" x2="130" y2="96" stroke="#111" stroke-width="3" stroke-linecap="round"/>
+  <!-- Pierna derecha -->
+  <line x1="140" y1="80" x2="150" y2="96" stroke="#111" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- Texto MARGHERITA S.A. con fondo oscuro estilo original -->
+  <!-- Banda de texto -->
+  <rect x="30" y="112" width="220" height="28" rx="4" fill="rgba(0,0,0,0.72)" clip-path="url(#oval-clip)"/>
+  <text x="140" y="132"
+        font-family="Arial Black, Impact, sans-serif"
+        font-size="18" font-weight="900"
+        fill="#ffffff"
+        text-anchor="middle"
+        letter-spacing="1">MARGHERITA S.A.</text>
+
+  <!-- Borde del óvalo -->
+  <ellipse cx="140" cy="80" rx="136" ry="75" fill="none" stroke="#111" stroke-width="4"/>
+  <!-- Borde interior dorado/oscuro -->
+  <ellipse cx="140" cy="80" rx="132" ry="71" fill="none" stroke="#333" stroke-width="1.5"/>
+</svg>

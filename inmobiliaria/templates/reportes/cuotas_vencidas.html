@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}Cuotas Vencidas y Por Vencer{% endblock %}
+{% block page_title %}<i class="bi bi-calendar-x me-2"></i>Cuotas Vencidas y Por Vencer{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm mt-3 no-print">
+  <div class="card-body">
+    <form method="GET" class="row g-3 align-items-end">
+      <div class="col-md-4">
+        <label class="form-label fw-semibold">Días a futuro a mostrar</label>
+        <input type="number" name="dias" class="form-control" value="{{ dias }}" min="1" max="90">
+      </div>
+      <div class="col-md-3">
+        <button type="submit" class="btn btn-warning w-100">
+          <i class="bi bi-funnel me-1"></i>Consultar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Vencidas -->
+<div class="card border-0 shadow-sm mt-3">
+  <div class="card-header bg-danger text-white">
+    <span class="fw-semibold">
+      <i class="bi bi-x-circle me-2"></i>Cuotas vencidas ({{ vencidas | length }})
+    </span>
+  </div>
+  <div class="card-body p-0">
+    {% if vencidas %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0 small">
+        <thead class="table-light">
+          <tr>
+            <th>Inquilino</th>
+            <th>Propiedad</th>
+            <th>Período</th>
+            <th>Vencimiento</th>
+            <th class="text-end">Saldo</th>
+            <th class="text-center">Estado</th>
+            <th class="no-print text-center">Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for al in vencidas %}
+          <tr class="table-danger">
+            <td class="fw-semibold">{{ al.inquilino }}</td>
+            <td>{{ al.propiedad }}</td>
+            <td>{{ al.periodo }} ({{ al.nro_cuota }}/{{ al.total_cuotas }})</td>
+            <td>{{ al.fecha_vencimiento }}</td>
+            <td class="text-end text-danger fw-bold">{{ al.saldo | fmt_gs }}</td>
+            <td class="text-center"><span class="badge bg-danger">{{ al.estado }}</span></td>
+            <td class="no-print text-center">
+              <a href="{{ url_for('registrar_cobro', contrato_id=al.contrato_id) }}"
+                 class="btn btn-sm btn-success">
+                <i class="bi bi-cash-coin"></i>
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="text-center text-muted py-4">
+      <i class="bi bi-check-circle-fill text-success fs-3 d-block mb-2"></i>
+      No hay cuotas vencidas.
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Por vencer -->
+<div class="card border-0 shadow-sm mt-3">
+  <div class="card-header bg-warning">
+    <span class="fw-semibold">
+      <i class="bi bi-clock-history me-2"></i>
+      Por vencer en los próximos {{ dias }} días ({{ por_vencer | length }})
+    </span>
+  </div>
+  <div class="card-body p-0">
+    {% if por_vencer %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0 small">
+        <thead class="table-light">
+          <tr>
+            <th>Inquilino</th>
+            <th>Propiedad</th>
+            <th>Período</th>
+            <th>Vencimiento</th>
+            <th class="text-end">Saldo</th>
+            <th class="text-center">Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for al in por_vencer %}
+          <tr class="table-warning">
+            <td class="fw-semibold">{{ al.inquilino }}</td>
+            <td>{{ al.propiedad }}</td>
+            <td>{{ al.periodo }} ({{ al.nro_cuota }}/{{ al.total_cuotas }})</td>
+            <td>{{ al.fecha_vencimiento }}</td>
+            <td class="text-end fw-bold">{{ al.saldo | fmt_gs }}</td>
+            <td class="text-center"><span class="badge bg-secondary">{{ al.estado }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="text-center text-muted py-4">
+      No hay cuotas por vencer en los próximos {{ dias }} días.
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+{% block title %}Registrar Cobro{% endblock %}
+{% block page_title %}<i class="bi bi-cash-coin me-2"></i>Registrar Cobro{% endblock %}
+
+{% block content %}
+<div class="row g-3 mt-1">
+
+  <!-- Panel izquierdo: datos del contrato -->
+  <div class="col-lg-4">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white border-bottom">
+        <span class="fw-semibold"><i class="bi bi-person me-2 text-primary"></i>Inquilino / Contrato</span>
+      </div>
+      <div class="card-body small">
+        <dl class="row mb-0">
+          <dt class="col-5 text-muted">Inquilino</dt>
+          <dd class="col-7 fw-bold">{{ contrato.inquilino }}</dd>
+
+          {% if contrato.cotitular %}
+          <dt class="col-5 text-muted">Co-titular</dt>
+          <dd class="col-7">{{ contrato.cotitular }}</dd>
+          {% endif %}
+
+          <dt class="col-5 text-muted">Propiedad</dt>
+          <dd class="col-7">{{ contrato.propiedad }}</dd>
+
+          {% if contrato.cta_cte_central %}
+          <dt class="col-5 text-muted">Cta. Cte.</dt>
+          <dd class="col-7"><code>{{ contrato.cta_cte_central }}</code></dd>
+          {% endif %}
+
+          <dt class="col-5 text-muted">Canon</dt>
+          <dd class="col-7 fw-semibold text-success">{{ contrato.canon_mensual | fmt_gs }}</dd>
+
+          <dt class="col-5 text-muted">Período de pago</dt>
+          <dd class="col-7">{{ contrato.dias_periodo_pago }} días desde el 1°</dd>
+
+          <dt class="col-5 text-muted">Recargo mora</dt>
+          <dd class="col-7 text-danger fw-semibold">{{ contrato.recargo_mora_diario | fmt_gs }}/día</dd>
+        </dl>
+      </div>
+    </div>
+
+    <!-- Reglas de negocio -->
+    <div class="card border-0 shadow-sm mt-3 border-start border-3"
+         style="border-color: var(--mg-verde) !important;">
+      <div class="card-body small">
+        <p class="fw-semibold mb-2">
+          <i class="bi bi-info-circle me-2" style="color:var(--mg-verde)"></i>Reglas de cobro
+        </p>
+        <ul class="mb-0 ps-3 text-muted">
+          <li><strong>RN01:</strong> Primer pago mínimo 50% del canon.</li>
+          <li><strong>RN02:</strong> Plazo de pago: {{ contrato.dias_periodo_pago }} días desde el 1° del mes.</li>
+          <li><strong>RN03:</strong> Mora desde el día siguiente al vencimiento.</li>
+          <li><strong>RN04:</strong> Recargo: {{ contrato.recargo_mora_diario | fmt_gs }} × días de atraso.</li>
+          <li><strong>RN05:</strong> Pagos adelantados permitidos.</li>
+          <li><strong>RN06:</strong> Un recibo por cada mes pagado.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel derecho: formulario -->
+  <div class="col-lg-8">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white border-bottom">
+        <span class="fw-semibold">
+          <i class="bi bi-list-check me-2 text-success"></i>Seleccionar períodos y registrar pago
+        </span>
+      </div>
+      <div class="card-body">
+        {% if alquileres %}
+        <form method="POST" id="form-cobro">
+
+          <!-- Tabla de períodos -->
+          <div class="table-responsive mb-3">
+            <table class="table table-sm align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>
+                    <input type="checkbox" id="chk-all" class="form-check-input cursor-pointer">
+                  </th>
+                  <th>Período</th>
+                  <th>Cuota</th>
+                  <th>Vencimiento</th>
+                  <th class="text-end">Alquiler</th>
+                  <th class="text-end">Saldo</th>
+                  <th class="text-center text-danger">Días mora</th>
+                  <th class="text-end text-danger">Recargo</th>
+                  <th class="text-end fw-bold">Total a cobrar</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for al in alquileres %}
+                <tr class="{{ 'table-danger' if al.estado == 'En mora' else ('table-warning' if al.estado == 'Pagado parcial' else '') }}">
+                  <td>
+                    <input type="checkbox" name="alquiler_ids" value="{{ al.id }}"
+                           class="form-check-input chk-item cursor-pointer"
+                           data-saldo="{{ al.total_a_cobrar }}"
+                           data-recargo="{{ al.recargo_calculado }}"
+                           data-dias="{{ al.dias_mora }}"
+                           data-id="{{ al.id }}">
+                  </td>
+                  <td class="fw-semibold">{{ al.periodo }}</td>
+                  <td>{{ al.nro_cuota }}/{{ al.total_cuotas }}</td>
+                  <td>{{ al.fecha_vencimiento }}</td>
+                  <td class="text-end">{{ al.monto | fmt_gs }}</td>
+                  <td class="text-end fw-bold {{ 'text-danger' if al.estado == 'En mora' else '' }}">
+                    {{ al.saldo | fmt_gs }}
+                  </td>
+                  <td class="text-center">
+                    {% if al.dias_mora > 0 %}
+                      <span class="badge bg-danger">{{ al.dias_mora }} días</span>
+                    {% else %}
+                      <span class="text-muted">—</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-end text-danger fw-semibold">
+                    {% if al.recargo_calculado > 0 %}
+                      {{ al.recargo_calculado | fmt_gs }}
+                    {% else %}
+                      <span class="text-muted">—</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-end fw-bold" style="color:var(--mg-verde-dark)">
+                    {{ al.total_a_cobrar | fmt_gs }}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Datos del pago -->
+          <div class="row g-3">
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Monto a cobrar (Gs.) <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text fw-bold">Gs.</span>
+                <input type="text" name="monto_total" id="monto_total"
+                       class="form-control input-gs text-end fw-bold fs-5"
+                       required placeholder="0" autocomplete="off">
+              </div>
+              <div class="form-text">
+                Seleccionado: <strong id="total-display" class="text-success">Gs. 0</strong>
+                &nbsp;|&nbsp; Recargo incluido: <strong id="recargo-display" class="text-danger">Gs. 0</strong>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Fecha de pago <span class="text-danger">*</span></label>
+              <input type="date" name="fecha_pago" class="form-control" required
+                     value="{{ today }}">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Forma de pago <span class="text-danger">*</span></label>
+              <select name="medio_pago_id" id="medio_pago_id" class="form-select" required>
+                <option value="">— Seleccionar —</option>
+                {% for m in medios %}
+                <option value="{{ m.id }}">{{ m.nombre }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-md-6 campo-deposito" style="display:none">
+              <label class="form-label fw-semibold">N° de depósito (DEP)</label>
+              <input type="text" name="nro_deposito" class="form-control" placeholder="Nro. depósito">
+            </div>
+
+            <div class="col-md-6 campo-transferencia" style="display:none">
+              <label class="form-label fw-semibold">N° de transferencia</label>
+              <input type="text" name="nro_transferencia" class="form-control" placeholder="Nro. transferencia">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">N° Factura legal</label>
+              <input type="text" name="nro_factura" class="form-control"
+                     placeholder="ej. 001-001-0000123">
+            </div>
+
+            <div class="col-12">
+              <label class="form-label fw-semibold">Observaciones</label>
+              <textarea name="observaciones" class="form-control" rows="2"
+                        placeholder="Notas adicionales..."></textarea>
+            </div>
+
+          </div><!-- /row -->
+
+          <hr class="my-3">
+          <div class="d-flex gap-2 justify-content-end">
+            <a href="{{ url_for('cobranzas') }}" class="btn btn-outline-secondary">
+              <i class="bi bi-x-lg me-1"></i>Cancelar
+            </a>
+            <button type="submit" class="btn btn-success btn-lg">
+              <i class="bi bi-check-circle me-2"></i>Registrar cobro y emitir recibo(s)
+            </button>
+          </div>
+        </form>
+
+        {% else %}
+        <div class="text-center text-muted py-4">
+          <i class="bi bi-check-circle-fill fs-1 text-success d-block mb-2"></i>
+          <strong>¡Todas las cuotas están al día!</strong>
+          <p>No hay saldos pendientes para este contrato.</p>
+          <a href="{{ url_for('ver_contrato', cid=contrato.id) }}" class="btn btn-outline-primary">
+            Ver detalle del contrato
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+  function recalcularTotal() {
+    let total = 0, recargo = 0;
+    document.querySelectorAll('.chk-item:checked').forEach(function (c) {
+      total   += parseFloat(c.dataset.saldo   || 0);
+      recargo += parseFloat(c.dataset.recargo || 0);
+    });
+    const campo = document.getElementById('monto_total');
+    if (campo) campo.value = Math.round(total).toLocaleString('es-PY');
+
+    const disp = document.getElementById('total-display');
+    if (disp) disp.textContent = 'Gs. ' + Math.round(total).toLocaleString('es-PY');
+
+    const rdis = document.getElementById('recargo-display');
+    if (rdis) rdis.textContent = recargo > 0
+      ? 'Gs. ' + Math.round(recargo).toLocaleString('es-PY')
+      : 'Gs. 0';
+  }
+
+  // Checkboxes individuales
+  document.querySelectorAll('.chk-item').forEach(c =>
+    c.addEventListener('change', recalcularTotal)
+  );
+
+  // Seleccionar todos
+  const chkAll = document.getElementById('chk-all');
+  if (chkAll) {
+    chkAll.addEventListener('change', function () {
+      document.querySelectorAll('.chk-item').forEach(c => c.checked = chkAll.checked);
+      recalcularTotal();
+    });
+  }
+
+  // Limpiar puntos al enviar para que Python reciba número limpio
+  const form = document.getElementById('form-cobro');
+  if (form) {
+    form.addEventListener('submit', function () {
+      const campo = document.getElementById('monto_total');
+      if (campo) campo.value = campo.value.replace(/\./g, '').replace(/,/g, '');
+    });
+  }
+
+  // Mostrar/ocultar campos según medio de pago
+  const medioPago = document.getElementById('medio_pago_id');
+  if (medioPago) {
+    medioPago.addEventListener('change', toggleCampos);
+    toggleCampos();
+  }
+
+  function toggleCampos() {
+    const texto = (medioPago.options[medioPago.selectedIndex]?.text || '').toLowerCase();
+    document.querySelectorAll('.campo-deposito').forEach(el =>
+      el.style.display = texto.includes('depósito') ? '' : 'none');
+    document.querySelectorAll('.campo-transferencia').forEach(el =>
+      el.style.display = texto.includes('transferencia') ? '' : 'none');
+  }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Anular Recibo N° {{ "%04d"|format(recibo.nro_recibo) }}{% endblock %}
+{% block page_title %}<i class="bi bi-x-circle me-2 text-danger"></i>Anular Recibo{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-3">
+  <div class="col-lg-6">
+    <div class="card border-danger border-0 shadow-sm">
+      <div class="card-header bg-danger text-white">
+        <span class="fw-semibold">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          Anulación de Recibo N° {{ "%04d"|format(recibo.nro_recibo) }}
+        </span>
+      </div>
+      <div class="card-body">
+
+        <div class="alert alert-warning">
+          <i class="bi bi-info-circle me-2"></i>
+          <strong>Regla RN06:</strong> El recibo será marcado como anulado, pero su número
+          <strong>se mantiene en la secuencia</strong> para preservar la correlatividad y la trazabilidad.
+          El saldo del período se restaurará automáticamente.
+        </div>
+
+        <dl class="row small mb-3">
+          <dt class="col-5 text-muted">Recibo N°</dt>
+          <dd class="col-7 fw-bold">{{ "%04d"|format(recibo.nro_recibo) }}</dd>
+          <dt class="col-5 text-muted">Inquilino</dt>
+          <dd class="col-7">{{ recibo.inquilino }}</dd>
+          <dt class="col-5 text-muted">Monto pagado</dt>
+          <dd class="col-7 fw-bold text-danger">{{ recibo.monto_pagado | fmt_gs }}</dd>
+          <dt class="col-5 text-muted">Saldo que se restaurará</dt>
+          <dd class="col-7">{{ (recibo.saldo + recibo.monto_pagado) | fmt_gs }}</dd>
+        </dl>
+
+        <form method="POST">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Motivo de anulación <span class="text-danger">*</span></label>
+            <textarea name="motivo" class="form-control" rows="3" required
+                      placeholder="Describí el motivo de la anulación..."></textarea>
+          </div>
+          <div class="d-flex gap-2 justify-content-end">
+            <a href="{{ url_for('recibos') }}" class="btn btn-outline-secondary">
+              <i class="bi bi-arrow-left me-1"></i>Cancelar
+            </a>
+            <button type="submit" class="btn btn-danger"
+                    data-confirm="¿Confirmás la anulación del recibo N° {{ recibo.nro_recibo }}? Esta acción no se puede deshacer.">
+              <i class="bi bi-x-circle me-2"></i>Confirmar anulación
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

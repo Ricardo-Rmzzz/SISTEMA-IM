@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Iniciar Sesión{% endblock %}
+
+{% block content_noauth %}
+<div class="min-vh-100 d-flex align-items-center justify-content-center"
+     style="background: linear-gradient(160deg, #1a1a1a 0%, #002d14 50%, #1a0005 100%);">
+
+  <!-- Barra tricolor superior -->
+  <div class="tricolor-bar" style="position:fixed;top:0;left:0;width:100%;z-index:999;height:5px;"></div>
+
+  <div style="width:100%;max-width:420px;padding:1rem;">
+
+    <!-- Card login -->
+    <div class="card border-0 shadow-lg" style="border-radius:1rem;overflow:hidden;">
+
+      <!-- Header verde con logo -->
+      <div class="text-center py-4 px-3"
+           style="background:linear-gradient(135deg, #007338 0%, #009246 60%, #004d25 100%);">
+        <img src="{{ url_for('static', filename='img/logo.svg') }}"
+             alt="Margherita S.A."
+             style="height:110px;width:auto;filter:drop-shadow(0 4px 8px rgba(0,0,0,.5));">
+        <p class="text-white mt-2 mb-0 opacity-75" style="font-size:.82rem;letter-spacing:.05em">
+          SISTEMA DE GESTIÓN DE COBROS
+        </p>
+      </div>
+
+      <!-- Barra tricolor separadora -->
+      <div class="tricolor-bar"></div>
+
+      <!-- Body -->
+      <div class="card-body p-4 p-md-5 bg-white">
+        <h5 class="fw-bold mb-4 text-center" style="color:var(--mg-dark)">
+          <i class="bi bi-box-arrow-in-right me-2" style="color:var(--mg-verde)"></i>Iniciar sesión
+        </h5>
+
+        <form method="POST" action="{{ url_for('login') }}">
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Usuario</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light border-end-0">
+                <i class="bi bi-person" style="color:var(--mg-verde)"></i>
+              </span>
+              <input type="text" name="usuario" class="form-control border-start-0 ps-0"
+                     placeholder="Ingresá tu usuario" required autofocus autocomplete="username">
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold small">Contraseña</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light border-end-0">
+                <i class="bi bi-lock" style="color:var(--mg-verde)"></i>
+              </span>
+              <input type="password" name="password" id="pwd"
+                     class="form-control border-start-0 border-end-0 ps-0"
+                     placeholder="••••••••" required autocomplete="current-password">
+              <button type="button" class="btn btn-outline-secondary border-start-0"
+                      onclick="togglePwd()" tabindex="-1">
+                <i class="bi bi-eye" id="eye-icon"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary btn-lg fw-semibold"
+                    style="background:linear-gradient(135deg,var(--mg-verde),var(--mg-verde-dark));
+                           border:none;letter-spacing:.03em;">
+              <i class="bi bi-box-arrow-in-right me-2"></i>Ingresar al sistema
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Footer de la card -->
+      <div class="text-center py-2 text-muted"
+           style="font-size:.72rem;background:#f8f9fa;border-top:1px solid #eee;">
+        Inmobiliaria Margherita S.A. &copy; 2026
+      </div>
+    </div>
+
+    <p class="text-center mt-3 mb-0" style="font-size:.72rem;color:rgba(255,255,255,.35);">
+      v1.0 — Análisis de Sistemas · Universidad Columbia del Paraguay
+    </p>
+  </div>
+</div>
+
+<script>
+function togglePwd() {
+  const input = document.getElementById('pwd');
+  const icon  = document.getElementById('eye-icon');
+  input.type  = input.type === 'password' ? 'text' : 'password';
+  icon.className = input.type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash';
+}
+</script>
+{% endblock content_noauth %}

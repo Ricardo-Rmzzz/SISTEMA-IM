@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block title %}Contrato #{{ contrato.id }}{% endblock %}
+{% block page_title %}<i class="bi bi-file-earmark-text me-2"></i>Contrato #{{ contrato.id }}{% endblock %}
+
+{% block content %}
+<div class="row g-3 mt-1">
+
+  <!-- Info del contrato -->
+  <div class="col-lg-5">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+        <span class="fw-semibold"><i class="bi bi-file-earmark-text me-2 text-primary"></i>Datos del contrato</span>
+        {% if session.rol == 'Administrador' %}
+        <a href="{{ url_for('editar_contrato', cid=contrato.id) }}" class="btn btn-sm btn-outline-primary">
+          <i class="bi bi-pencil me-1"></i>Editar
+        </a>
+        {% endif %}
+      </div>
+      <div class="card-body">
+        <dl class="row mb-0 small">
+          <dt class="col-5 text-muted">Estado</dt>
+          <dd class="col-7">
+            {% if contrato.activo %}
+              <span class="badge bg-success">Activo</span>
+            {% else %}
+              <span class="badge bg-secondary">Inactivo</span>
+            {% endif %}
+          </dd>
+
+          <dt class="col-5 text-muted">Inquilino</dt>
+          <dd class="col-7 fw-semibold">{{ contrato.inquilino }}</dd>
+
+          {% if contrato.cotitular %}
+          <dt class="col-5 text-muted">Co-titular</dt>
+          <dd class="col-7">{{ contrato.cotitular }}</dd>
+          {% endif %}
+
+          <dt class="col-5 text-muted">Propiedad</dt>
+          <dd class="col-7">{{ contrato.propiedad }}</dd>
+
+          {% if contrato.cta_cte_central %}
+          <dt class="col-5 text-muted">Cta. Cte. Central</dt>
+          <dd class="col-7"><code>{{ contrato.cta_cte_central }}</code></dd>
+          {% endif %}
+
+          {% if contrato.ciudad %}
+          <dt class="col-5 text-muted">Ciudad</dt>
+          <dd class="col-7">{{ contrato.ciudad }}</dd>
+          {% endif %}
+
+          <dt class="col-5 text-muted">Inicio</dt>
+          <dd class="col-7">{{ contrato.fecha_inicio }}</dd>
+
+          <dt class="col-5 text-muted">Fin</dt>
+          <dd class="col-7">{{ contrato.fecha_fin }}</dd>
+
+          <dt class="col-5 text-muted">Canon mensual</dt>
+          <dd class="col-7 fw-bold text-success">{{ contrato.canon_mensual | fmt_gs }}</dd>
+
+          <dt class="col-5 text-muted">Período de pago</dt>
+          <dd class="col-7">{{ contrato.dias_periodo_pago }} días desde el 1° del mes</dd>
+
+          <dt class="col-5 text-muted">Recargo por mora</dt>
+          <dd class="col-7">{{ contrato.recargo_mora_diario | fmt_gs }} por día de atraso</dd>
+        </dl>
+
+        {% if contrato.observaciones %}
+        <hr>
+        <p class="small text-muted mb-0"><strong>Observaciones:</strong> {{ contrato.observaciones }}</p>
+        {% endif %}
+      </div>
+      <div class="card-footer bg-white">
+        <a href="{{ url_for('registrar_cobro', contrato_id=contrato.id) }}"
+           class="btn btn-success w-100">
+          <i class="bi bi-cash-coin me-2"></i>Registrar cobro
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla de alquileres/cuotas -->
+  <div class="col-lg-7">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white border-bottom">
+        <span class="fw-semibold"><i class="bi bi-calendar3 me-2 text-primary"></i>Cuotas generadas</span>
+      </div>
+      <div class="card-body p-0" style="max-height: 520px; overflow-y: auto;">
+        <table class="table table-hover align-middle mb-0 small">
+          <thead class="table-light sticky-top">
+            <tr>
+              <th>Cuota</th>
+              <th>Período</th>
+              <th>Vencimiento</th>
+              <th class="text-end">Monto</th>
+              <th class="text-end">Saldo</th>
+              <th class="text-center">Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for al in alquileres %}
+            <tr class="{{ 'table-danger' if al.estado == 'En mora' else ('table-warning' if al.estado == 'Pagado parcial' else ('table-success' if al.estado == 'Pagado' else '')) }}">
+              <td>{{ al.nro_cuota }}/{{ al.total_cuotas }}</td>
+              <td>{{ al.periodo }}</td>
+              <td>{{ al.fecha_vencimiento }}</td>
+              <td class="text-end">{{ al.monto | fmt_gs }}</td>
+              <td class="text-end fw-semibold">{{ al.saldo | fmt_gs }}</td>
+              <td class="text-center">
+                {% if al.estado == 'Pagado' %}
+                  <span class="badge bg-success">Pagado</span>
+                {% elif al.estado == 'Pagado parcial' %}
+                  <span class="badge bg-warning text-dark">Parcial</span>
+                {% elif al.estado == 'En mora' %}
+                  <span class="badge bg-danger">En mora</span>
+                {% elif al.estado == 'Vencido' %}
+                  <span class="badge bg-danger">Vencido</span>
+                {% else %}
+                  <span class="badge bg-secondary">Pendiente</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="6" class="text-center text-muted py-4">Sin cuotas generadas.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+        <span class="small text-muted">Total cuotas: {{ alquileres | length }}</span>
+        <span class="fw-bold">
+          Saldo total: {{ alquileres | sum(attribute='saldo') | fmt_gs }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="mt-3">
+  <a href="{{ url_for('contratos') }}" class="btn btn-outline-secondary">
+    <i class="bi bi-arrow-left me-1"></i>Volver a contratos
+  </a>
+</div>
+{% endblock %}

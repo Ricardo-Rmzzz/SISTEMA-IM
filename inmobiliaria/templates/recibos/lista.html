@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Recibos{% endblock %}
+{% block page_title %}<i class="bi bi-receipt me-2"></i>Recibos{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm mt-3">
+  <div class="card-header bg-white border-bottom">
+    <form method="GET" class="d-flex gap-2 align-items-center">
+      <input type="text" name="q" class="form-control"
+             placeholder="Buscar por inquilino o N° de recibo..."
+             value="{{ q }}" style="max-width:320px;">
+      <button type="submit" class="btn btn-outline-primary">
+        <i class="bi bi-search"></i>
+      </button>
+      {% if q %}
+      <a href="{{ url_for('recibos') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-x"></i> Limpiar
+      </a>
+      {% endif %}
+    </form>
+  </div>
+  <div class="card-body p-0">
+    {% if recibos %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>N° Recibo</th>
+            <th>Fecha</th>
+            <th>Inquilino</th>
+            <th>Propiedad</th>
+            <th>Período / Cuota</th>
+            <th>Tipo de pago</th>
+            <th>Forma de pago</th>
+            <th class="text-end">Monto</th>
+            <th class="text-center">Estado</th>
+            <th class="text-center">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in recibos %}
+          <tr class="{{ 'table-danger text-muted' if r.anulado else '' }}">
+            <td>
+              <span class="badge {{ 'bg-secondary' if r.anulado else 'bg-primary' }}">
+                {{ "%04d"|format(r.nro_recibo) }}
+              </span>
+            </td>
+            <td>{{ r.fecha_pago }}</td>
+            <td class="{{ '' if not r.anulado else 'text-decoration-line-through' }}">
+              {{ r.inquilino }}
+            </td>
+            <td>{{ r.propiedad }}</td>
+            <td>{{ r.periodo }} ({{ r.nro_cuota }}/{{ r.total_cuotas }})</td>
+            <td>
+              {% if not r.anulado %}
+                {% if r.tipo_pago == 'Pago total' %}
+                  <span class="badge bg-success">Total</span>
+                {% elif r.tipo_pago == 'Pago parcial' %}
+                  <span class="badge bg-warning text-dark">Parcial</span>
+                {% else %}
+                  <span class="badge bg-info text-dark">Cancelación</span>
+                {% endif %}
+              {% else %}
+                <span class="badge bg-secondary">Anulado</span>
+              {% endif %}
+            </td>
+            <td>{{ r.medio_pago }}</td>
+            <td class="text-end fw-semibold">{{ r.monto_pagado | fmt_gs }}</td>
+            <td class="text-center">
+              {% if r.anulado %}
+                <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>Anulado</span>
+              {% else %}
+                <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Válido</span>
+              {% endif %}
+            </td>
+            <td class="text-center">
+              <a href="{{ url_for('ver_recibo', rid=r.id) }}"
+                 class="btn btn-sm btn-outline-info me-1"
+                 data-bs-toggle="tooltip" title="Ver / Imprimir">
+                <i class="bi bi-printer"></i>
+              </a>
+              {% if not r.anulado %}
+              <a href="{{ url_for('anular_recibo', rid=r.id) }}"
+                 class="btn btn-sm btn-outline-danger"
+                 data-bs-toggle="tooltip" title="Anular recibo (RN06)">
+                <i class="bi bi-x-circle"></i>
+              </a>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="text-center text-muted py-5">
+      <i class="bi bi-receipt fs-1 d-block mb-2"></i>
+      No se encontraron recibos.
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

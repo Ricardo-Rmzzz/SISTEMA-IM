@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+{% block title %}Inicio{% endblock %}
+{% block page_title %}<i class="bi bi-speedometer2 me-2"></i>Inicio{% endblock %}
+
+{% block content %}
+
+<!-- Barra decorativa tricolor bajo el topbar -->
+<div class="tricolor-bar mb-3"></div>
+
+<!-- ── Stat cards ──────────────────────────────────────────────────────── -->
+<div class="row g-3">
+
+  <div class="col-6 col-md-4 col-xl-2">
+    <div class="card stat-card stat-card-verde h-100 shadow-sm">
+      <div class="card-body py-3">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <div class="fw-bold fs-3">{{ stats.propiedades }}</div>
+            <div class="small opacity-75">Propiedades</div>
+          </div>
+          <i class="bi bi-house-door-fill fs-2 opacity-40"></i>
+        </div>
+      </div>
+      <a href="{{ url_for('propiedades') }}"
+         class="card-footer text-white text-decoration-none small py-1 opacity-75"
+         style="background:rgba(0,0,0,.15)">
+        Ver todas <i class="bi bi-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-xl-2">
+    <div class="card stat-card stat-card-purple h-100 shadow-sm">
+      <div class="card-body py-3">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <div class="fw-bold fs-3">{{ stats.inquilinos }}</div>
+            <div class="small opacity-75">Inquilinos</div>
+          </div>
+          <i class="bi bi-people-fill fs-2 opacity-40"></i>
+        </div>
+      </div>
+      <a href="{{ url_for('inquilinos') }}"
+         class="card-footer text-white text-decoration-none small py-1 opacity-75"
+         style="background:rgba(0,0,0,.15)">
+        Ver todos <i class="bi bi-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-xl-2">
+    <div class="card stat-card stat-card-dark h-100 shadow-sm">
+      <div class="card-body py-3">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <div class="fw-bold fs-3">{{ stats.contratos_activos }}</div>
+            <div class="small opacity-75">Contratos activos</div>
+          </div>
+          <i class="bi bi-file-earmark-check-fill fs-2 opacity-40"></i>
+        </div>
+      </div>
+      <a href="{{ url_for('contratos') }}"
+         class="card-footer text-white text-decoration-none small py-1 opacity-75"
+         style="background:rgba(0,0,0,.25)">
+        Ver todos <i class="bi bi-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-xl-2">
+    <div class="card stat-card stat-card-cyan h-100 shadow-sm">
+      <div class="card-body py-3">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <div class="fw-bold" style="font-size:1rem">{{ stats.recaudado_mes | fmt_gs }}</div>
+            <div class="small opacity-75">Recaudado este mes</div>
+          </div>
+          <i class="bi bi-cash-stack fs-2 opacity-40"></i>
+        </div>
+      </div>
+      <a href="{{ url_for('reporte_recaudacion') }}"
+         class="card-footer text-white text-decoration-none small py-1 opacity-75"
+         style="background:rgba(0,0,0,.15)">
+        Ver reporte <i class="bi bi-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-xl-2">
+    <div class="card stat-card stat-card-rojo h-100 shadow-sm">
+      <div class="card-body py-3">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <div class="fw-bold fs-3">{{ stats.en_mora }}</div>
+            <div class="small opacity-75">Períodos en mora</div>
+          </div>
+          <i class="bi bi-exclamation-triangle-fill fs-2 opacity-40"></i>
+        </div>
+      </div>
+      <a href="{{ url_for('reporte_morosidad') }}"
+         class="card-footer text-white text-decoration-none small py-1 opacity-75"
+         style="background:rgba(0,0,0,.15)">
+        Ver morosidad <i class="bi bi-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-xl-2">
+    <div class="card stat-card stat-card-amber h-100 shadow-sm">
+      <div class="card-body py-3">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <div class="fw-bold" style="font-size:1rem">{{ stats.saldo_pendiente | fmt_gs }}</div>
+            <div class="small opacity-75">Saldo pendiente total</div>
+          </div>
+          <i class="bi bi-hourglass-split fs-2 opacity-40"></i>
+        </div>
+      </div>
+      <a href="{{ url_for('cobranzas') }}"
+         class="card-footer text-white text-decoration-none small py-1 opacity-75"
+         style="background:rgba(0,0,0,.15)">
+        Ir a cobranzas <i class="bi bi-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+
+</div><!-- /stats -->
+
+<!-- ── Segunda fila ──────────────────────────────────────────────────────── -->
+<div class="row g-3 mt-1">
+
+  <!-- Últimos recibos -->
+  <div class="col-lg-8">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+        <span class="fw-semibold" style="color:var(--mg-dark)">
+          <i class="bi bi-receipt me-2" style="color:var(--mg-verde)"></i>Últimos recibos emitidos
+        </span>
+        <a href="{{ url_for('recibos') }}" class="btn btn-sm btn-outline-primary">Ver todos</a>
+      </div>
+      <div class="card-body p-0">
+        {% if ultimos_recibos %}
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>N° Recibo</th>
+                <th>Inquilino</th>
+                <th>Período</th>
+                <th>Tipo</th>
+                <th class="text-end">Monto</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for r in ultimos_recibos %}
+              <tr>
+                <td>
+                  <span class="badge" style="background:var(--mg-verde)">
+                    {{ "%04d"|format(r.nro_recibo) }}
+                  </span>
+                </td>
+                <td>{{ r.inquilino }}</td>
+                <td><span class="badge bg-secondary">{{ r.periodo }}</span></td>
+                <td>
+                  {% if r.tipo_pago == 'Pago total' %}
+                    <span class="badge bg-success">Total</span>
+                  {% elif r.tipo_pago == 'Pago parcial' %}
+                    <span class="badge bg-warning text-dark">Parcial</span>
+                  {% else %}
+                    <span class="badge bg-info text-dark">Cancelación</span>
+                  {% endif %}
+                </td>
+                <td class="text-end fw-semibold" style="color:var(--mg-verde-dark)">
+                  {{ r.monto_pagado | fmt_gs }}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-5">
+          <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+          Aún no hay recibos emitidos.
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Accesos rápidos -->
+  <div class="col-lg-4">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-header bg-white border-bottom">
+        <span class="fw-semibold" style="color:var(--mg-dark)">
+          <i class="bi bi-lightning-charge me-2" style="color:#e67e22"></i>Accesos rápidos
+        </span>
+      </div>
+      <div class="card-body d-flex flex-column gap-2">
+        <a href="{{ url_for('cobranzas') }}" class="btn btn-success text-start fw-semibold">
+          <i class="bi bi-cash-coin me-2"></i>Registrar cobro
+        </a>
+        {% if session.rol == 'Administrador' %}
+        <a href="{{ url_for('nuevo_contrato') }}" class="btn btn-outline-primary text-start">
+          <i class="bi bi-file-earmark-plus me-2"></i>Nuevo contrato
+        </a>
+        <a href="{{ url_for('nuevo_inquilino') }}" class="btn btn-outline-secondary text-start">
+          <i class="bi bi-person-plus me-2"></i>Nuevo inquilino
+        </a>
+        <a href="{{ url_for('nueva_propiedad') }}" class="btn btn-outline-secondary text-start">
+          <i class="bi bi-house-add me-2"></i>Nueva propiedad
+        </a>
+        {% endif %}
+        <hr class="my-1">
+        <a href="{{ url_for('reporte_morosidad') }}" class="btn btn-outline-danger text-start">
+          <i class="bi bi-exclamation-triangle me-2"></i>Reporte de morosidad
+        </a>
+        <a href="{{ url_for('reporte_recaudacion') }}" class="btn btn-outline-primary text-start">
+          <i class="bi bi-bar-chart-line me-2"></i>Reporte de recaudación
+        </a>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
